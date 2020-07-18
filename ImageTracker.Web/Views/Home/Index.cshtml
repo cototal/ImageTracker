@@ -1,0 +1,49 @@
+﻿@model HomeVM
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+    <div class="text-center">
+        <h1>Welcome</h1>
+        <div class="columns">
+            <div class="column">
+                <form method="GET">
+                    <div class="field">
+                        <label for="search" class="label">Search</label>
+                        <input class="input" type="text" value="@Model.Search" name="search" id="search" />
+                    </div>
+                    <div class="field">
+                        <div class="control">
+                            <input type="submit" value="Search" class="button is-link" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="column">
+                <form asp-action="AddDirectory" asp-controller="Home" method="POST">
+                    <div class="field">
+                        <label class="label" for="directory">Directory</label>
+                        <input class="input" type="text" name="directory" id="directory" value="" />
+                    </div>
+                    <div class="field">
+                        <div class="control">
+                            <input type="submit" value="Add" class="button is-link" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        @foreach (var image in Model.Images)
+        {
+            <img src="/Home/ShowFile/@image.Id" width="250" />
+        }
+        @if (string.IsNullOrWhiteSpace(Model.Search))
+        {
+            <a asp-action="Index" asp-controller="Home" asp-route-page="@Model.NextPage">Next Page</a>
+        }
+        else
+        {
+            <a asp-action="Index" asp-controller="Home" asp-route-search="@Model.Search" asp-route-page="@Model.NextPage">Next Page</a>
+        }
+    </div>

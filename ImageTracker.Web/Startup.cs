@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ImageTracker.Web.Data;
+using ImageTracker.Web.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -27,8 +28,9 @@ namespace ImageTracker.Web
             services.AddDbContext<ImageTrackerContext>(options =>
             {
                 options.UseSqlite(Configuration.GetConnectionString("DefaultConnection"));
-                options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+                // options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
             });
+            services.AddScoped<UpdateImages>();
             services.AddControllersWithViews();
         }
 

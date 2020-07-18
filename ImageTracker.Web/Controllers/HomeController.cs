@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore;
 using ImageTracker.Web.Models;
 using System.Threading.Tasks;
 using System;
+using System.Collections.Generic;
+using ImageTracker.Web.Services;
 
 namespace ImageTracker.Web.Controllers
 {
@@ -16,11 +18,13 @@ namespace ImageTracker.Web.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly ImageTrackerContext _db;
+        private readonly UpdateImages _update;
 
-        public HomeController(ILogger<HomeController> logger, ImageTrackerContext db)
+        public HomeController(ILogger<HomeController> logger, ImageTrackerContext db, UpdateImages update)
         {
             _logger = logger;
             _db = db;
+            _update = update;
         }
 
         public async Task<IActionResult> Index(string search, int page = 1)
@@ -32,23 +36,20 @@ namespace ImageTracker.Web.Controllers
                 query = _db.Images.Where(i => 1 == 1);
             } else
             {
-                search = $"%{search}%";
+                var searchParam = $"%{search}%";
                 FormattableString searchString = $@"SELECT Images.* FROM Images
                     LEFT JOIN ImageTags ON Images.Id = ImageTags.ImageId
                     LEFT JOIN Tags ON Tags.Id = ImageTags.TagId
                     LEFT JOIN categories ON Images.CategoryId = Categories.Id
-                    WHERE path LIKE {search}
-                    OR Tags.Name LIKE {search}
-                    OR Categories.Name LIKE {search}";
+                    WHERE path LIKE {searchParam}
+                    OR Tags.Name LIKE {searchParam}
+                    OR Categories.Name LIKE {searchParam}";
                 query = _db.Images.FromSqlInterpolated(searchString);
             }
-            var images = await query.OrderBy(i => i.Id).Skip(skip).Take(100).ToListAsync();
+            var images = await query.Include(i => i.Category).Include(i => i.ImageTags).ThenInclude(it => it.Tag).OrderBy(i => i.Id).Skip(skip).Take(100).ToListAsync();
+            var vm = new HomeVM(search: search, page: page, images: images);
 
-            return View(new HomeVM {
-                Images = images,
-                Page = page,
-                Search = string.IsNullOrWhiteSpace(search) ? null : search
-            });
+            return View(vm);
         }
 
         [HttpPost]
@@ -83,6 +84,13 @@ namespace ImageTracker.Web.Controllers
             {
                 return StatusCode(204);
             }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Update(Dictionary<int, ImageFormVM> imageForms)
+        {
+            var images = await _update.UpdateFromForm(imageForms);
+            return RedirectToAction("Index");
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

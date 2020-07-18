@@ -34,10 +34,29 @@
                 </form>
             </div>
         </div>
-        @foreach (var image in Model.Images)
-        {
-            <img src="/Home/ShowFile/@image.Id" width="250" />
-        }
+        <form class="image-list-form" asp-action="Update" asp-controller="Home" method="POST">
+            <input type="submit" value="Update" class="button is-success" />
+            <div class="columns">
+                <div class="column">
+                    @foreach (var imageEntry in Model.ImageForms)
+                    {
+                        var image = imageEntry.Value;
+
+                        <div class="image-block">
+                            <img src="/Home/ShowFile/@image.Id" width="250" alt="@image.Path" />
+                            <input type="hidden" value="@image.Id" name="imageForms[@image.Id].Id" />
+                            <input class="input" type="text" value="@image.Name" placeholder="name" name="imageForms[@image.Id].Name" />
+                            <input class="input" type="text" value="@image.Category" placeholder="category" name="imageForms[@image.Id].Category" />
+                            <input class="input" type="text" value="@image.Tags" placeholder="tag1,tag2,tag3" name="imageForms[@image.Id].Tags" />
+                            <label>
+                                <input type="checkbox" value="@image.Rename" name="imageForms[@image.Id].Rename" />
+                                Rename
+                            </label>
+                        </div>
+                    }
+                </div>
+            </div>
+        </form>
         @if (string.IsNullOrWhiteSpace(Model.Search))
         {
             <a asp-action="Index" asp-controller="Home" asp-route-page="@Model.NextPage">Next Page</a>

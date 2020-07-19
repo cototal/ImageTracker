@@ -5,7 +5,6 @@
 }
 
     <div class="text-center">
-        <h1>Welcome</h1>
         <div class="columns">
             <div class="column">
                 <form method="GET">
@@ -16,6 +15,7 @@
                     <div class="field">
                         <div class="control">
                             <input type="submit" value="Search" class="button is-link" />
+                            <a asp-action="Index" asp-controller="Home" class="button is-default">Clear</a>
                         </div>
                     </div>
                 </form>
@@ -34,6 +34,18 @@
                 </form>
             </div>
         </div>
+        <div class="columns">
+            <div class="column">
+                @if (string.IsNullOrWhiteSpace(Model.Search))
+                {
+                    <a asp-action="Index" asp-controller="Home" asp-route-page="@Model.NextPage">Next Page</a>
+                }
+                else
+                {
+                    <a asp-action="Index" asp-controller="Home" asp-route-search="@Model.Search" asp-route-page="@Model.NextPage">Next Page</a>
+                }
+            </div>
+        </div>
         <form class="image-list-form" asp-action="Update" asp-controller="Home" method="POST">
             <input type="submit" value="Update" class="button is-success" />
             <div class="columns">
@@ -43,7 +55,9 @@
                         var image = imageEntry.Value;
 
                         <div class="image-block">
-                            <img src="/Home/ShowFile/@image.Id" width="250" alt="@image.Path" />
+                            <a asp-action="Single" asp-controller="Home" asp-route-id="@image.Id">
+                                <img src="/Home/ShowFile/@image.Id" width="250" alt="@image.Path" />
+                            </a>
                             <input type="hidden" value="@image.Id" name="imageForms[@image.Id].Id" />
                             <input class="input" type="text" value="@image.Name" placeholder="name" name="imageForms[@image.Id].Name" />
                             <input class="input" type="text" value="@image.Category" placeholder="category" name="imageForms[@image.Id].Category" />
@@ -57,12 +71,4 @@
                 </div>
             </div>
         </form>
-        @if (string.IsNullOrWhiteSpace(Model.Search))
-        {
-            <a asp-action="Index" asp-controller="Home" asp-route-page="@Model.NextPage">Next Page</a>
-        }
-        else
-        {
-            <a asp-action="Index" asp-controller="Home" asp-route-search="@Model.Search" asp-route-page="@Model.NextPage">Next Page</a>
-        }
     </div>

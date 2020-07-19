@@ -1,0 +1,39 @@
+﻿@model Image
+
+@{
+    ViewData["Title"] = Model.Name;
+}
+
+    <div class="text-center">
+        <img src="/Home/ShowFile/@Model.Id" alt="@Model.Path" />
+        <table class="table is-striped">
+            <tbody>
+                <tr>
+                    <th>Name</th>
+                    <td>@Model.Name</td>
+                </tr>
+                <tr>
+                    <th>Path</th>
+                    <td>@Model.Path</td>
+                </tr>
+                <tr>
+                    <th>Category</th>
+                    <td>@Model.Category?.Name</td>
+                </tr>
+                <tr>
+                    <th>Tags</th>
+                    <td>
+                        @if (Model.ImageTags != null)
+                        {
+                            <ul>
+                                @foreach (var it in Model.ImageTags)
+                                {
+                                    <li>@it.Tag.Name</li>
+                                }
+                            </ul>
+                        }
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>

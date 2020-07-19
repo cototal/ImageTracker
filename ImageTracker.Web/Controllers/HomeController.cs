@@ -52,6 +52,13 @@ namespace ImageTracker.Web.Controllers
             return View(vm);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Single(int id)
+        {
+            var image = await _db.Images.Include(i => i.Category).Include(i => i.ImageTags).ThenInclude(it => it.Tag).FirstOrDefaultAsync(i => i.Id == id);
+            return View(image);
+        }
+
         [HttpPost]
         public async Task<IActionResult> AddDirectory()
         {
@@ -89,8 +96,14 @@ namespace ImageTracker.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Update(Dictionary<int, ImageFormVM> imageForms)
         {
+            var referer = Request.Headers["Referer"].ToString();
+            var host = Request.Host.Value;
+            var refererUri = new Uri(referer);
+            if (!host.StartsWith(refererUri.Host)) {
+                referer = Url.Action("Index", "Home");
+            }
             var images = await _update.UpdateFromForm(imageForms);
-            return RedirectToAction("Index");
+            return Redirect(referer);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
